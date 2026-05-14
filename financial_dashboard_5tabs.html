@@ -1,0 +1,824 @@
+
+<h2 class="sr-only">금융권 전략영업 데이터 관리 대시보드 — 5개 탭으로 구성된 사분면·6분면 분석 도구</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:var(--color-background-tertiary);
+  --surface:var(--color-background-primary);
+  --surface2:var(--color-background-secondary);
+  --border:var(--color-border-tertiary);
+  --border2:var(--color-border-secondary);
+  --text:var(--color-text-primary);
+  --text2:var(--color-text-secondary);
+  --text3:var(--color-text-tertiary);
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-border:#B5D4F4;--blue-text:#0C447C;
+  --green:#3B6D11;--green-bg:#EAF3DE;--green-border:#C0DD97;--green-text:#27500A;
+  --red:#A32D2D;--red-bg:#FCEBEB;--red-border:#F7C1C1;--red-text:#791F1F;
+  --amber:#854F0B;--amber-bg:#FAEEDA;--amber-border:#FAC775;--amber-text:#633806;
+  --purple:#534AB7;--purple-bg:#EEEDFE;--purple-border:#CECBF6;--purple-text:#3C3489;
+  --teal:#0F6E56;--teal-bg:#E1F5EE;--teal-border:#9FE1CB;--teal-text:#085041;
+  --r:var(--border-radius-md);--rl:var(--border-radius-lg);
+}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);font-size:13px}
+
+.topbar{background:var(--surface);border-bottom:0.5px solid var(--border2);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.brand-icon{width:32px;height:32px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+.brand-name{font-size:14px;font-weight:500;color:var(--text)}
+.brand-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:6px}
+.hdr-btn{padding:5px 10px;border:0.5px solid var(--border2);border-radius:var(--r);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.hdr-btn:hover{background:var(--surface2)}
+.hdr-btn.accent{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+.tabs-wrap{background:var(--surface);border-bottom:0.5px solid var(--border2);padding:0 16px;display:flex;gap:2px}
+.tab-btn{padding:10px 14px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:all .15s;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+.page-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:12px 14px 12px 18px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--rl) 0 0 var(--rl)}
+.stat-card.c1::before{background:var(--blue)}.stat-card.c2::before{background:var(--green)}
+.stat-card.c3::before{background:var(--red)}.stat-card.c4::before{background:var(--amber)}
+.stat-card.c5::before{background:var(--purple)}.stat-card.c6::before{background:var(--teal)}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card.sel.c1{background:var(--blue-bg);border-color:var(--blue-border)}
+.stat-card.sel.c2{background:var(--green-bg);border-color:var(--green-border)}
+.stat-card.sel.c3{background:var(--red-bg);border-color:var(--red-border)}
+.stat-card.sel.c4{background:var(--amber-bg);border-color:var(--amber-border)}
+.stat-card.sel.c5{background:var(--purple-bg);border-color:var(--purple-border)}
+.stat-card.sel.c6{background:var(--teal-bg);border-color:var(--teal-border)}
+.stat-label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.3px;text-transform:uppercase;margin-bottom:4px}
+.stat-val{font-size:26px;font-weight:500;line-height:1;letter-spacing:-1px}
+.stat-val.c1{color:var(--blue)}.stat-val.c2{color:var(--green)}.stat-val.c3{color:var(--red)}
+.stat-val.c4{color:var(--amber)}.stat-val.c5{color:var(--purple)}.stat-val.c6{color:var(--teal)}
+.stat-desc{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.4}
+
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:12px;align-items:start}
+.panel{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.panel-head{padding:12px 14px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:12px;font-weight:500;color:var(--text)}
+.panel-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.panel-body{padding:12px 14px}
+
+.quad-grid{display:grid;gap:6px}
+.quad-4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;height:300px}
+.quad-6{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr;height:340px}
+.q-card{border-radius:var(--r);border:1px solid transparent;padding:12px;display:flex;flex-direction:column;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.q-card::after{content:attr(data-num);position:absolute;right:8px;bottom:4px;font-size:40px;font-weight:700;opacity:.06;line-height:1;pointer-events:none}
+.q-card:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(0,0,0,.08)}
+.q-card.active{box-shadow:0 0 0 2px currentColor,0 4px 16px rgba(0,0,0,.1);transform:translateY(-1px)}
+.q1{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}.q1.active{border-color:var(--blue)}
+.q2{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}.q2.active{border-color:var(--green)}
+.q3{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}.q3.active{border-color:var(--red)}
+.q4{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}.q4.active{border-color:var(--amber)}
+.q5{background:var(--purple-bg);border-color:var(--purple-border);color:var(--purple)}.q5.active{border-color:var(--purple)}
+.q6{background:var(--teal-bg);border-color:var(--teal-border);color:var(--teal)}.q6.active{border-color:var(--teal)}
+.q-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:currentColor;color:#fff;align-self:flex-start;letter-spacing:.3px}
+.q-tag span{mix-blend-mode:normal;filter:brightness(10)}
+.q-name{font-size:13px;font-weight:500;margin-top:4px;color:var(--text)}
+.q-cond{font-size:10px;color:var(--text2);margin-top:2px;line-height:1.5}
+.q-bottom{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between}
+.q-count{font-size:30px;font-weight:700;line-height:1;letter-spacing:-1px}
+.q-pct{font-size:13px;font-weight:500;opacity:.7}
+.q-bar{height:3px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden;margin-top:6px}
+.q-bar-fill{height:100%;border-radius:99px;background:currentColor;transition:width .4s}
+.axis-labels{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px}
+.ax-lbl{font-size:10px;color:var(--text3);text-align:center}
+.axis-row{display:flex;align-items:stretch;gap:6px}
+.y-ax{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;color:var(--text3);text-align:center;width:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+
+.pdca-list{display:flex;flex-direction:column;gap:5px}
+.pdca-item{border:0.5px solid var(--border);border-radius:var(--r);overflow:hidden}
+.pdca-hdr{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer}
+.pdca-hdr:hover{background:var(--surface2)}
+.pdca-dot{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.pdca-dot.P{background:var(--blue-bg);color:var(--blue)}.pdca-dot.D{background:var(--green-bg);color:var(--green)}
+.pdca-dot.C{background:var(--amber-bg);color:var(--amber)}.pdca-dot.A{background:var(--red-bg);color:var(--red)}
+.pdca-title{font-size:12px;font-weight:500;flex:1}
+.pdca-body{display:none;padding:0 10px 10px 44px;font-size:11px;color:var(--text2);line-height:1.7}
+.pdca-body ul{padding-left:14px}
+.pdca-body.open{display:block}
+
+.table-section{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.table-toolbar{padding:8px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:140px}
+.search-box input{width:100%;padding:6px 8px 6px 28px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--surface2);color:var(--text);font-size:12px;outline:none}
+.search-box input:focus{border-color:var(--blue)}
+.search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.filter-row{display:flex;gap:4px;flex-wrap:wrap}
+.fchip{padding:4px 9px;border-radius:99px;border:0.5px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;cursor:pointer}
+.fchip:hover{background:var(--surface2)}.fchip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sort-sel{padding:5px 8px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--surface2);color:var(--text);font-size:11px;outline:none;cursor:pointer}
+.add-btn{padding:6px 12px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
+.filter-bar{display:none;align-items:center;gap:6px;padding:6px 12px;background:var(--blue-bg);border-bottom:0.5px solid var(--blue-border);font-size:11px;color:var(--blue-text)}
+.filter-bar.show{display:flex}
+.clear-btn{margin-left:auto;padding:2px 8px;border:0.5px solid var(--blue-border);border-radius:99px;background:transparent;color:var(--blue-text);font-size:10px;cursor:pointer}
+.table-scroll{overflow:auto;max-height:360px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:820px}
+thead{position:sticky;top:0;z-index:3}
+th{background:var(--surface2);padding:7px 9px;text-align:left;font-weight:500;color:var(--text2);border-bottom:0.5px solid var(--border2);white-space:nowrap;font-size:11px;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}th.sa{color:var(--blue)}
+td{padding:6px 9px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}tr:hover td{background:var(--surface2)}
+td.num{text-align:right}td.ctr{text-align:center}
+.badge{display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.bq1{background:var(--blue-bg);color:var(--blue-text);border:0.5px solid var(--blue-border)}
+.bq2{background:var(--green-bg);color:var(--green-text);border:0.5px solid var(--green-border)}
+.bq3{background:var(--red-bg);color:var(--red-text);border:0.5px solid var(--red-border)}
+.bq4{background:var(--amber-bg);color:var(--amber-text);border:0.5px solid var(--amber-border)}
+.bq5{background:var(--purple-bg);color:var(--purple-text);border:0.5px solid var(--purple-border)}
+.bq6{background:var(--teal-bg);color:var(--teal-text);border:0.5px solid var(--teal-border)}
+.bok{background:var(--green-bg);color:var(--green-text)}
+.bno{background:var(--red-bg);color:var(--red-text)}
+.bna{background:var(--surface2);color:var(--text3)}
+.note-inp{width:100%;padding:3px 6px;border:0.5px solid transparent;border-radius:var(--r);background:transparent;color:var(--text);font-size:11px;min-width:100px}
+.note-inp:hover{border-color:var(--border2);background:var(--surface2)}
+.note-inp:focus{border-color:var(--blue);background:var(--surface);outline:none}
+.act-btn{padding:2px 7px;border:0.5px solid var(--border2);border-radius:var(--r);background:transparent;color:var(--text2);font-size:10px;cursor:pointer}
+.act-btn:hover{background:var(--surface2)}.act-btn.del{color:var(--red-text);border-color:var(--red-border)}
+.act-btn.del:hover{background:var(--red-bg)}
+.tfoot{padding:7px 12px;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text3)}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--rl);padding:20px;width:100%;max-width:460px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);border:0.5px solid var(--border2)}
+.modal-title{font-size:15px;font-weight:500;margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg{display:flex;flex-direction:column;gap:4px}.fg.full{grid-column:1/-1}
+.fl{font-size:11px;font-weight:500;color:var(--text2)}
+.fi{padding:7px 9px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--surface2);color:var(--text);font-size:13px;outline:none;width:100%}
+.fi:focus{border-color:var(--blue)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:0.5px solid var(--border)}
+.btn-c{padding:7px 14px;border:0.5px solid var(--border2);border-radius:var(--r);background:transparent;color:var(--text2);font-size:12px;cursor:pointer}
+.btn-s{padding:7px 16px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer}
+
+.p5-ctrl{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px}
+.p5-label{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:8px;display:block}
+.p5-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.p5-inp{padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--surface2);color:var(--text);font-size:14px;font-weight:500;width:130px;outline:none}
+.p5-inp:focus{border-color:var(--blue)}
+.p5-presets{display:flex;gap:6px;flex-wrap:wrap}
+.preset-btn{padding:5px 12px;border:0.5px solid var(--border2);border-radius:99px;background:transparent;color:var(--text2);font-size:11px;cursor:pointer}
+.preset-btn:hover{background:var(--surface2)}.preset-btn.on{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.p5-result{font-size:12px;color:var(--text3);margin-top:8px}
+</style>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand-icon">F</div>
+    <div>
+      <div class="brand-name" id="dashName">금융권 전략영업 데이터 관리 대시보드</div>
+      <div class="brand-sub">대한민국 금융권 전수 리스트 2026 · 120개 핵심 기관</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="hdr-btn" onclick="clearAllFilters()"><i class="ti ti-refresh" aria-hidden="true"></i> 초기화</button>
+    <button class="hdr-btn accent" onclick="openModal(null)"><i class="ti ti-plus" aria-hidden="true"></i> 신규 추가</button>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <button class="tab-btn active" id="tab0" onclick="goTab(0)">📊 P1 · 기준 3,000명</button>
+  <button class="tab-btn" id="tab1" onclick="goTab(1)">📊 P2 · 기준 2,000명</button>
+  <button class="tab-btn" id="tab2" onclick="goTab(2)">📊 P3 · 기준 1,000명</button>
+  <button class="tab-btn" id="tab3" onclick="goTab(3)">⬡ P4 · 6분면</button>
+  <button class="tab-btn" id="tab4" onclick="goTab(4)">⚙ P5 · 사용자 정의</button>
+</div>
+
+<div id="pageBody" class="page-body"></div>
+
+<div class="overlay" id="recModal">
+  <div class="modal">
+    <div class="modal-title" id="mTitle">신규 금융기관 추가</div>
+    <div class="form-grid">
+      <div class="fg full"><label class="fl">기관명 *</label><input class="fi" id="f-name" placeholder="예: KB국민은행"></div>
+      <div class="fg"><label class="fl">업종 대분류</label><select class="fi" id="f-cat1"><option>1금융권</option><option>2금융권</option><option>보험업권</option><option>금융지주</option><option>기타금융</option></select></div>
+      <div class="fg"><label class="fl">업종 소분류</label><input class="fi" id="f-cat2" placeholder="예: 시중은행"></div>
+      <div class="fg full"><label class="fl">소속 지주</label><input class="fi" id="f-group" placeholder="없으면 -"></div>
+      <div class="fg"><label class="fl">임직원수</label><input class="fi" id="f-emp" type="number" placeholder="예: 15700"></div>
+      <div class="fg"><label class="fl">담당자 확인</label><select class="fi" id="f-rep"><option value="O">O (확인 완료)</option><option value="X">X (미확인)</option><option value="">미입력</option></select></div>
+      <div class="fg"><label class="fl">솔루션 사용</label><select class="fi" id="f-sol"><option value="O">O (사용 중)</option><option value="X">X (미사용)</option><option value="">미입력</option></select></div>
+      <div class="fg full"><label class="fl">비고 / 기록</label><input class="fi" id="f-note" placeholder="메모 입력..."></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-c" onclick="closeModal()">취소</button>
+      <button class="btn-s" onclick="saveRecord()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const RAWDB = [
+  {id:1,name:"KB국민은행",cat1:"1금융권",cat2:"시중은행",group:"KB금융지주",emp:15700,rep:"O",sol:"O",note:""},
+  {id:2,name:"우리은행",cat1:"1금융권",cat2:"시중은행",group:"우리금융지주",emp:12680,rep:"O",sol:"O",note:""},
+  {id:3,name:"하나은행",cat1:"1금융권",cat2:"시중은행",group:"하나금융지주",emp:11850,rep:"O",sol:"O",note:""},
+  {id:4,name:"iM뱅크(구 대구은행)",cat1:"1금융권",cat2:"시중은행",group:"DGB금융지주",emp:3050,rep:"O",sol:"O",note:""},
+  {id:5,name:"카카오뱅크",cat1:"1금융권",cat2:"인터넷전문은행",group:"-",emp:1620,rep:"O",sol:"O",note:""},
+  {id:6,name:"케이뱅크",cat1:"1금융권",cat2:"인터넷전문은행",group:"-",emp:630,rep:"O",sol:"O",note:""},
+  {id:7,name:"토스뱅크",cat1:"1금융권",cat2:"인터넷전문은행",group:"-",emp:680,rep:"O",sol:"O",note:""},
+  {id:8,name:"NH농협은행",cat1:"1금융권",cat2:"특수은행",group:"NH농협금융지주",emp:13800,rep:"O",sol:"O",note:""},
+  {id:9,name:"IBK기업은행",cat1:"1금융권",cat2:"특수은행",group:"-",emp:12400,rep:"X",sol:"O",note:""},
+  {id:10,name:"KDB산업은행",cat1:"1금융권",cat2:"특수은행",group:"-",emp:3450,rep:"O",sol:"O",note:""},
+  {id:11,name:"한국수출입은행",cat1:"1금융권",cat2:"특수은행",group:"-",emp:1300,rep:"O",sol:"O",note:""},
+  {id:12,name:"Sh수협은행",cat1:"1금융권",cat2:"특수은행",group:"-",emp:2150,rep:"O",sol:"O",note:""},
+  {id:13,name:"BNK부산은행",cat1:"1금융권",cat2:"지방은행",group:"BNK금융지주",emp:2800,rep:"O",sol:"O",note:""},
+  {id:14,name:"BNK경남은행",cat1:"1금융권",cat2:"지방은행",group:"BNK금융지주",emp:2250,rep:"O",sol:"O",note:""},
+  {id:15,name:"광주은행",cat1:"1금융권",cat2:"지방은행",group:"JB금융지주",emp:1550,rep:"O",sol:"O",note:""},
+  {id:16,name:"전북은행",cat1:"1금융권",cat2:"지방은행",group:"JB금융지주",emp:1100,rep:"O",sol:"O",note:""},
+  {id:17,name:"제주은행",cat1:"1금융권",cat2:"지방은행",group:"신한금융지주",emp:430,rep:"O",sol:"O",note:""},
+  {id:18,name:"SC제일은행",cat1:"1금융권",cat2:"외국계은행",group:"스탠다드차타드",emp:3100,rep:"O",sol:"O",note:""},
+  {id:19,name:"한국씨티은행",cat1:"1금융권",cat2:"외국계은행",group:"씨티그룹",emp:2000,rep:"O",sol:"O",note:""},
+  {id:20,name:"미래에셋증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:3400,rep:"O",sol:"O",note:""},
+  {id:21,name:"한국투자증권",cat1:"2금융권",cat2:"증권사",group:"한국금융지주",emp:2980,rep:"O",sol:"O",note:""},
+  {id:22,name:"NH투자증권",cat1:"2금융권",cat2:"증권사",group:"NH농협금융지주",emp:3120,rep:"O",sol:"O",note:""},
+  {id:23,name:"삼성증권",cat1:"2금융권",cat2:"증권사",group:"삼성",emp:2550,rep:"O",sol:"O",note:""},
+  {id:24,name:"KB증권",cat1:"2금융권",cat2:"증권사",group:"KB금융지주",emp:2850,rep:"O",sol:"O",note:""},
+  {id:25,name:"신한투자증권",cat1:"2금융권",cat2:"증권사",group:"신한금융지주",emp:2450,rep:"O",sol:"O",note:""},
+  {id:26,name:"하나증권",cat1:"2금융권",cat2:"증권사",group:"하나금융지주",emp:2250,rep:"O",sol:"O",note:""},
+  {id:27,name:"메리츠증권",cat1:"2금융권",cat2:"증권사",group:"메리츠금융지주",emp:1550,rep:"O",sol:"O",note:""},
+  {id:28,name:"키움증권",cat1:"2금융권",cat2:"증권사",group:"다우키움",emp:950,rep:"O",sol:"O",note:""},
+  {id:29,name:"대신증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:1453,rep:"O",sol:"O",note:""},
+  {id:30,name:"유안타증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:1670,rep:"O",sol:"O",note:""},
+  {id:31,name:"한화투자증권",cat1:"2금융권",cat2:"증권사",group:"한화",emp:1090,rep:"O",sol:"O",note:""},
+  {id:32,name:"교보증권",cat1:"2금융권",cat2:"증권사",group:"교보",emp:951,rep:"O",sol:"O",note:""},
+  {id:33,name:"현대차증권",cat1:"2금융권",cat2:"증권사",group:"현대차그룹",emp:920,rep:"O",sol:"O",note:""},
+  {id:34,name:"하이투자증권",cat1:"2금융권",cat2:"증권사",group:"DGB금융지주",emp:810,rep:"O",sol:"O",note:""},
+  {id:35,name:"IBK투자증권",cat1:"2금융권",cat2:"증권사",group:"IBK기업은행",emp:666,rep:"O",sol:"O",note:""},
+  {id:36,name:"DB금융투자",cat1:"2금융권",cat2:"증권사",group:"DB",emp:780,rep:"O",sol:"O",note:""},
+  {id:37,name:"유진투자증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:730,rep:"O",sol:"O",note:""},
+  {id:38,name:"LS증권",cat1:"2금융권",cat2:"증권사",group:"LS",emp:572,rep:"O",sol:"O",note:""},
+  {id:39,name:"SK증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:823,rep:"O",sol:"O",note:""},
+  {id:40,name:"다올투자증권",cat1:"2금융권",cat2:"증권사",group:"다올금융그룹",emp:324,rep:"X",sol:null,note:""},
+  {id:41,name:"부국증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:288,rep:"O",sol:"O",note:""},
+  {id:42,name:"신영증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:621,rep:"O",sol:null,note:""},
+  {id:43,name:"유화증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:75,rep:"X",sol:null,note:""},
+  {id:44,name:"한양증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:450,rep:"O",sol:"O",note:""},
+  {id:45,name:"케이프투자증권",cat1:"2금융권",cat2:"증권사",group:"-",emp:120,rep:"X",sol:null,note:""},
+  {id:46,name:"신한카드",cat1:"2금융권",cat2:"카드사",group:"신한금융지주",emp:2580,rep:"O",sol:null,note:""},
+  {id:47,name:"삼성카드",cat1:"2금융권",cat2:"카드사",group:"삼성",emp:1940,rep:"O",sol:null,note:""},
+  {id:48,name:"현대카드",cat1:"2금융권",cat2:"카드사",group:"현대차그룹",emp:1910,rep:"O",sol:"O",note:""},
+  {id:49,name:"KB국민카드",cat1:"2금융권",cat2:"카드사",group:"KB금융지주",emp:1419,rep:"O",sol:"O",note:""},
+  {id:50,name:"롯데카드",cat1:"2금융권",cat2:"카드사",group:"-",emp:1695,rep:"O",sol:"O",note:""},
+  {id:51,name:"하나카드",cat1:"2금융권",cat2:"카드사",group:"하나금융지주",emp:785,rep:"X",sol:null,note:""},
+  {id:52,name:"우리카드",cat1:"2금융권",cat2:"카드사",group:"우리금융지주",emp:740,rep:"O",sol:"O",note:""},
+  {id:53,name:"비씨카드",cat1:"2금융권",cat2:"카드사",group:"KT",emp:865,rep:"O",sol:"O",note:""},
+  {id:54,name:"현대캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"현대차그룹",emp:2120,rep:"O",sol:"O",note:""},
+  {id:55,name:"KB캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"KB금융지주",emp:637,rep:"O",sol:null,note:""},
+  {id:56,name:"미래에셋캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"-",emp:null,rep:null,sol:null,note:""},
+  {id:57,name:"하나캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"하나금융지주",emp:460,rep:"O",sol:"O",note:""},
+  {id:58,name:"우리금융캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"우리금융지주",emp:415,rep:"X",sol:null,note:""},
+  {id:59,name:"NH농협캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"NH농협금융지주",emp:427,rep:"X",sol:"O",note:""},
+  {id:60,name:"롯데캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"-",emp:435,rep:"O",sol:"O",note:""},
+  {id:61,name:"BNK캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"BNK금융지주",emp:447,rep:"O",sol:"O",note:""},
+  {id:62,name:"JB우리캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"JB금융지주",emp:633,rep:"O",sol:"O",note:""},
+  {id:63,name:"IBK캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"IBK기업은행",emp:275,rep:"O",sol:"O",note:""},
+  {id:64,name:"신한캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"신한금융지주",emp:215,rep:"O",sol:null,note:""},
+  {id:65,name:"M캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"-",emp:222,rep:"X",sol:null,note:""},
+  {id:66,name:"한국투자캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"한국금융지주",emp:95,rep:"O",sol:"O",note:""},
+  {id:67,name:"DB캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"DB",emp:36,rep:"X",sol:null,note:""},
+  {id:68,name:"DGB캐피탈",cat1:"2금융권",cat2:"캐피탈",group:"DGB금융지주",emp:185,rep:"O",sol:"O",note:""},
+  {id:69,name:"삼성생명",cat1:"보험업권",cat2:"생명보험",group:"삼성",emp:5019,rep:"O",sol:"O",note:""},
+  {id:70,name:"한화생명",cat1:"보험업권",cat2:"생명보험",group:"한화",emp:2729,rep:"O",sol:"O",note:""},
+  {id:71,name:"교보생명",cat1:"보험업권",cat2:"생명보험",group:"-",emp:3664,rep:"O",sol:"O",note:""},
+  {id:72,name:"신한라이프",cat1:"보험업권",cat2:"생명보험",group:"신한금융지주",emp:1509,rep:"O",sol:"O",note:""},
+  {id:73,name:"NH농협생명",cat1:"보험업권",cat2:"생명보험",group:"NH농협금융지주",emp:1024,rep:"O",sol:"O",note:""},
+  {id:74,name:"미래에셋생명",cat1:"보험업권",cat2:"생명보험",group:"-",emp:763,rep:"O",sol:"O",note:""},
+  {id:75,name:"동양생명",cat1:"보험업권",cat2:"생명보험",group:"-",emp:915,rep:"O",sol:"O",note:""},
+  {id:76,name:"흥국생명",cat1:"보험업권",cat2:"생명보험",group:"태광",emp:680,rep:"O",sol:"O",note:""},
+  {id:77,name:"라이나생명",cat1:"보험업권",cat2:"생명보험",group:"처브그룹",emp:920,rep:"O",sol:"O",note:""},
+  {id:78,name:"AIA생명",cat1:"보험업권",cat2:"생명보험",group:"AIA그룹",emp:545,rep:"O",sol:null,note:""},
+  {id:79,name:"DB생명",cat1:"보험업권",cat2:"생명보험",group:"DB",emp:420,rep:"O",sol:"O",note:""},
+  {id:80,name:"DGB생명",cat1:"보험업권",cat2:"생명보험",group:"DGB금융지주",emp:215,rep:"O",sol:null,note:""},
+  {id:81,name:"KDB생명",cat1:"보험업권",cat2:"생명보험",group:"-",emp:530,rep:"O",sol:"O",note:""},
+  {id:82,name:"KB라이프",cat1:"보험업권",cat2:"생명보험",group:"KB금융지주",emp:740,rep:"O",sol:null,note:""},
+  {id:83,name:"푸본현대생명",cat1:"보험업권",cat2:"생명보험",group:"현대차그룹",emp:415,rep:"O",sol:"O",note:""},
+  {id:84,name:"iM라이프",cat1:"보험업권",cat2:"생명보험",group:"DGB금융지주",emp:190,rep:"O",sol:"O",note:""},
+  {id:85,name:"메트라이프생명",cat1:"보험업권",cat2:"생명보험",group:"-",emp:630,rep:"O",sol:"O",note:""},
+  {id:86,name:"삼성화재",cat1:"보험업권",cat2:"손해보험",group:"삼성",emp:5549,rep:"O",sol:"O",note:""},
+  {id:87,name:"현대해상",cat1:"보험업권",cat2:"손해보험",group:"-",emp:4050,rep:"O",sol:"O",note:""},
+  {id:88,name:"DB손해보험",cat1:"보험업권",cat2:"손해보험",group:"DB",emp:4600,rep:"O",sol:"O",note:""},
+  {id:89,name:"KB손해보험",cat1:"보험업권",cat2:"손해보험",group:"KB금융지주",emp:2955,rep:"O",sol:"O",note:""},
+  {id:90,name:"메리츠화재",cat1:"보험업권",cat2:"손해보험",group:"메리츠금융지주",emp:2779,rep:"O",sol:"O",note:""},
+  {id:91,name:"한화손해보험",cat1:"보험업권",cat2:"손해보험",group:"한화",emp:2150,rep:"O",sol:"O",note:""},
+  {id:92,name:"흥국화재",cat1:"보험업권",cat2:"손해보험",group:"태광",emp:910,rep:"O",sol:"O",note:""},
+  {id:93,name:"롯데손해보험",cat1:"보험업권",cat2:"손해보험",group:"-",emp:985,rep:"O",sol:"O",note:""},
+  {id:94,name:"NH농협손해보험",cat1:"보험업권",cat2:"손해보험",group:"NH농협금융지주",emp:720,rep:"O",sol:"O",note:""},
+  {id:95,name:"AXA다이렉트",cat1:"보험업권",cat2:"손해보험",group:"-",emp:1240,rep:"X",sol:"O",note:""},
+  {id:96,name:"MG손해보험",cat1:"보험업권",cat2:"손해보험",group:"-",emp:530,rep:"O",sol:"O",note:""},
+  {id:97,name:"캐롯손해보험",cat1:"보험업권",cat2:"손해보험",group:"한화",emp:310,rep:"O",sol:"O",note:""},
+  {id:98,name:"하나손해보험",cat1:"보험업권",cat2:"손해보험",group:"하나금융지주",emp:620,rep:"O",sol:null,note:""},
+  {id:99,name:"KB금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:25739,rep:"O",sol:null,note:""},
+  {id:100,name:"신한금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:24950,rep:"O",sol:null,note:""},
+  {id:101,name:"하나금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:21500,rep:"X",sol:null,note:""},
+  {id:102,name:"우리금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:18300,rep:"O",sol:"O",note:""},
+  {id:103,name:"NH농협금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:22400,rep:"O",sol:null,note:""},
+  {id:104,name:"BNK금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:8450,rep:"O",sol:null,note:""},
+  {id:105,name:"DGB금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:4950,rep:"X",sol:"O",note:""},
+  {id:106,name:"JB금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:4100,rep:"X",sol:null,note:""},
+  {id:107,name:"한국금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:4850,rep:"X",sol:null,note:""},
+  {id:108,name:"메리츠금융지주",cat1:"금융지주",cat2:"지주회사",group:"-",emp:3150,rep:"X",sol:null,note:""},
+  {id:109,name:"한국은행",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:2491,rep:"O",sol:"O",note:""},
+  {id:110,name:"새마을금고중앙회",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:1180,rep:"O",sol:null,note:""},
+  {id:111,name:"신협중앙회",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:895,rep:"O",sol:"O",note:""},
+  {id:112,name:"농협중앙회",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:4619,rep:"O",sol:"O",note:""},
+  {id:113,name:"수협중앙회",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:1120,rep:"O",sol:"O",note:""},
+  {id:114,name:"산림조합중앙회",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:715,rep:"O",sol:"O",note:""},
+  {id:115,name:"금융감독원",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:2339,rep:"O",sol:"O",note:""},
+  {id:116,name:"예금보험공사",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:845,rep:"O",sol:null,note:""},
+  {id:117,name:"한국자산관리공사",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:1360,rep:"O",sol:"O",note:""},
+  {id:118,name:"주택금융공사",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:945,rep:"O",sol:null,note:""},
+  {id:119,name:"신용보증기금",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:2750,rep:"O",sol:"O",note:""},
+  {id:120,name:"기술보증기금",cat1:"기타금융",cat2:"공공/중앙회",group:"-",emp:1586,rep:"O",sol:"O",note:""}
+];
+
+let DB = JSON.parse(JSON.stringify(RAWDB));
+let nextId = 200;
+let curTab = 0;
+let selSeg = null;
+let selSector = 'all';
+let sortCol = '';
+let sortDir = 1;
+let customThreshold = 3000;
+
+const PDCA_DATA = [
+  {tag:'P',title:'PLAN — 전략 기획',sub:'공략 우선순위 · 제안 로드맵',body:'<ul><li>KB·신한·하나·우리·NH 5대 금융지주 우선 어프로치 계획 수립</li><li>솔루션 미도입 기관 갭 분석 및 니즈 매핑</li><li>계열사 크로스셀링 경로 설계</li><li>분기별 POC 제안 일정·담당자 미팅 스케줄 수립</li><li>RFP 대응 자료 맞춤 제작 계획</li></ul>'},
+  {tag:'D',title:'DO — 실행',sub:'데모 · PoC · 협상 · 계약',body:'<ul><li>담당자 대상 솔루션 소개 미팅 → 기술 데모 진행</li><li>비가시성 워터마크 PoC 무상 제공 프로그램 운영</li><li>마크애니 솔루션 데모데이 행사 개최</li><li>계약 조건 협상 및 파일럿 진행</li><li>계열사 담당자 연계 네트워킹 기획</li></ul>'},
+  {tag:'C',title:'CHECK — 검토·측정',sub:'성과 추적 · 피드백 분석',body:'<ul><li>파일럿 결과 분석 및 고객 피드백 취합</li><li>계열사 추가 확산 가능성 평가</li><li>마크애니 진행 전환율 월간 트래킹</li><li>경쟁사 제안 현황 모니터링</li><li>분기별 KPI 달성률 리뷰 미팅</li></ul>'},
+  {tag:'A',title:'ACT — 개선·확산',sub:'레퍼런스 확산 · 업셀링',body:'<ul><li>성공 레퍼런스 정리 → 동종 업종 추천영업 활용</li><li>계약 조건 표준화 (SLA·유지보수 패키지)</li><li>잠재고객으로 PDCA 사이클 확장 적용</li><li>연간 리뷰 및 업셀링 기회 발굴</li><li>내부 영업 프로세스 개선 반영</li></ul>'},
+];
+
+function getThreshold() {
+  if (curTab === 0) return 3000;
+  if (curTab === 1) return 2000;
+  if (curTab === 2) return 1000;
+  if (curTab === 4) return customThreshold;
+  return 3000;
+}
+
+function getSegment4(d, thr) {
+  if (!d.emp || !d.rep) return null;
+  if (d.rep==='O' && d.emp>=thr) return 1;
+  if (d.rep==='X' && d.emp>=thr) return 2;
+  if (d.rep==='X' && d.emp<thr) return 3;
+  if (d.rep==='O' && d.emp<thr) return 4;
+  return null;
+}
+
+function getSegment6(d) {
+  if (!d.emp || !d.rep) return null;
+  const hi = d.emp >= 3000, mid = d.emp >= 1000 && d.emp < 3000, lo = d.emp < 1000;
+  const o = d.rep === 'O';
+  if (o && hi) return 1;
+  if (!o && hi) return 2;
+  if (o && mid) return 3;
+  if (!o && mid) return 4;
+  if (o && lo) return 5;
+  if (!o && lo) return 6;
+  return null;
+}
+
+function getCurSeg(d) {
+  return curTab === 3 ? getSegment6(d) : getSegment4(d, getThreshold());
+}
+
+const SEG4_INFO = (thr) => ({
+  1:{cls:'q1',bCls:'bq1',name:'Q1 핵심고객',cond:`담당자 O · ${thr.toLocaleString()}명↑`,pos:'우측 상단',label:'Q1 핵심'},
+  2:{cls:'q2',bCls:'bq2',name:'Q2 잠재고객',cond:`담당자 X · ${thr.toLocaleString()}명↑`,pos:'좌측 상단',label:'Q2 잠재'},
+  3:{cls:'q3',bCls:'bq3',name:'Q3 관리고객',cond:`담당자 X · ${thr.toLocaleString()}명↓`,pos:'좌측 하단',label:'Q3 관리'},
+  4:{cls:'q4',bCls:'bq4',name:'Q4 유지고객',cond:`담당자 O · ${thr.toLocaleString()}명↓`,pos:'우측 하단',label:'Q4 유지'},
+});
+
+const SEG6_INFO = {
+  1:{cls:'q1',bCls:'bq1',name:'S1 핵심대형',cond:'담당자 O · 3,000명↑',pos:'우측 상단',label:'S1 핵심대형'},
+  2:{cls:'q2',bCls:'bq2',name:'S2 잠재대형',cond:'담당자 X · 3,000명↑',pos:'좌측 상단',label:'S2 잠재대형'},
+  3:{cls:'q3',bCls:'bq3',name:'S3 핵심중형',cond:'담당자 O · 1,000~3,000명',pos:'우측 중간',label:'S3 핵심중형'},
+  4:{cls:'q4',bCls:'bq4',name:'S4 잠재중형',cond:'담당자 X · 1,000~3,000명',pos:'좌측 중간',label:'S4 잠재중형'},
+  5:{cls:'q5',bCls:'bq5',name:'S5 핵심소형',cond:'담당자 O · 1,000명↓',pos:'우측 하단',label:'S5 핵심소형'},
+  6:{cls:'q6',bCls:'bq6',name:'S6 잠재소형',cond:'담당자 X · 1,000명↓',pos:'좌측 하단',label:'S6 잠재소형'},
+};
+
+function getSegInfo(n) {
+  return curTab === 3 ? SEG6_INFO[n] : SEG4_INFO(getThreshold())[n];
+}
+
+function goTab(n) {
+  curTab = n; selSeg = null; selSector = 'all';
+  [0,1,2,3,4].forEach(i => {
+    document.getElementById('tab'+i).classList.toggle('active', i===n);
+  });
+  renderPage();
+}
+
+function renderPage() {
+  const body = document.getElementById('pageBody');
+  if (curTab === 3) renderPage6(body);
+  else renderPage4(body, getThreshold());
+}
+
+function renderPage4(body, thr) {
+  const info = SEG4_INFO(thr);
+  const counts = {1:0,2:0,3:0,4:0};
+  DB.forEach(d=>{const s=getSegment4(d,thr);if(s)counts[s]++;});
+  const tot = Object.values(counts).reduce((a,b)=>a+b,0)||1;
+  const order = [2,1,3,4];
+
+  const statsHtml = renderStats4(counts, thr, info);
+  const cardsHtml = order.map(n => {
+    const inf = info[n], c = counts[n], pct = Math.round(c/tot*100);
+    const act = selSeg===n ? 'active' : '';
+    return `<div class="q-card ${inf.cls} ${act}" data-num="${n}" onclick="toggleSeg(${n})">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span class="q-tag"><span>${inf.name}</span></span>
+        <span style="font-size:10px;opacity:.6">${inf.pos}</span>
+      </div>
+      <div class="q-cond" style="margin-top:4px">${inf.cond}</div>
+      <div class="q-bottom">
+        <div>
+          <div class="q-count">${c}</div>
+          <div style="font-size:10px;opacity:.6;margin-top:1px">개 기관</div>
+          <div class="q-bar" style="width:80px;margin-top:5px"><div class="q-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div style="text-align:right"><div class="q-pct">${pct}%</div><div style="font-size:10px;opacity:.6">전체 대비</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const p5ctrl = curTab === 4 ? renderP5Ctrl() : '';
+
+  body.innerHTML = `
+    ${statsHtml}
+    ${p5ctrl}
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="panel-title">사분면 분석 — 담당자 확인 × 직원 규모 (기준: ${thr.toLocaleString()}명)</div>
+          <div class="panel-sub">영역 클릭 시 해당 기관 리스트로 즉시 필터링</div></div>
+          <button class="hdr-btn" onclick="toggleSeg(null)" style="font-size:11px">전체</button>
+        </div>
+        <div class="panel-body">
+          <div class="axis-row">
+            <div class="y-ax">▲ ${thr.toLocaleString()}명 이상<br><br><br><br>${thr.toLocaleString()}명 미만 ▼</div>
+            <div style="flex:1">
+              <div class="quad-grid quad-4">${cardsHtml}</div>
+              <div class="axis-labels">
+                <div class="ax-lbl">◀ 담당자 확인 X (미확인)</div>
+                <div class="ax-lbl">담당자 확인 O (완료) ▶</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">PDCA 전략 — Q1 핵심고객</div><div class="panel-sub">담당자 O + ${thr.toLocaleString()}명 이상</div></div></div>
+        <div class="panel-body">${renderPDCAHtml()}</div>
+      </div>
+    </div>
+    ${renderTableHtml()}`;
+  bindTableEvents();
+  if (curTab === 4) bindP5Events();
+}
+
+function renderPage6(body) {
+  const counts = {1:0,2:0,3:0,4:0,5:0,6:0};
+  DB.forEach(d=>{const s=getSegment6(d);if(s)counts[s]++;});
+  const tot = Object.values(counts).reduce((a,b)=>a+b,0)||1;
+  const order = [2,1,4,3,6,5];
+
+  const statsHtml = renderStats6(counts);
+  const cardsHtml = order.map(n=>{
+    const inf=SEG6_INFO[n],c=counts[n],pct=Math.round(c/tot*100),act=selSeg===n?'active':'';
+    return `<div class="q-card ${inf.cls} ${act}" data-num="${n}" onclick="toggleSeg(${n})">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span class="q-tag"><span>${inf.name}</span></span>
+        <span style="font-size:10px;opacity:.6">${inf.pos}</span>
+      </div>
+      <div class="q-cond" style="margin-top:4px">${inf.cond}</div>
+      <div class="q-bottom">
+        <div><div class="q-count">${c}</div><div style="font-size:10px;opacity:.6;margin-top:1px">개 기관</div>
+          <div class="q-bar" style="width:70px;margin-top:4px"><div class="q-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div style="text-align:right"><div class="q-pct">${pct}%</div><div style="font-size:10px;opacity:.6">전체 대비</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    ${statsHtml}
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="panel-title">6분면 분석 — 담당자 확인 × 직원 규모 3단계</div>
+          <div class="panel-sub">3,000명 이상 / 1,000~3,000명 / 1,000명 미만 × 담당자 확인 여부</div></div>
+          <button class="hdr-btn" onclick="toggleSeg(null)" style="font-size:11px">전체</button>
+        </div>
+        <div class="panel-body">
+          <div class="axis-row">
+            <div class="y-ax" style="font-size:9px">▲ 3,000명↑<br><br>1,000~3,000<br><br>1,000명↓ ▼</div>
+            <div style="flex:1">
+              <div class="quad-grid quad-6">${cardsHtml}</div>
+              <div class="axis-labels">
+                <div class="ax-lbl">◀ 담당자 확인 X (미확인)</div>
+                <div class="ax-lbl">담당자 확인 O (완료) ▶</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">PDCA 전략 — S1 핵심대형</div><div class="panel-sub">담당자 O + 3,000명 이상 대형 금융기관</div></div></div>
+        <div class="panel-body">${renderPDCAHtml()}</div>
+      </div>
+    </div>
+    ${renderTableHtml()}`;
+  bindTableEvents();
+}
+
+function renderStats4(counts, thr, info) {
+  return `<div class="stat-row">
+    <div class="stat-card" onclick="toggleSeg(null)">
+      <div class="stat-label">전체 기관</div>
+      <div class="stat-val">${DB.length}</div>
+      <div class="stat-desc">핵심 금융기관 합계</div>
+    </div>
+    ${[1,2,3,4].map(n=>`
+    <div class="stat-card c${n} ${selSeg===n?'sel':''}" onclick="toggleSeg(${n})">
+      <div class="stat-label">${info[n].name}</div>
+      <div class="stat-val c${n}">${counts[n]}</div>
+      <div class="stat-desc">${info[n].cond}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderStats6(counts) {
+  return `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+    <div class="stat-card" onclick="toggleSeg(null)">
+      <div class="stat-label">전체 기관</div>
+      <div class="stat-val">${DB.length}</div>
+      <div class="stat-desc">합계</div>
+    </div>
+    ${[1,2,3,4,5,6].map(n=>`
+    <div class="stat-card c${n} ${selSeg===n?'sel':''}" onclick="toggleSeg(${n})">
+      <div class="stat-label" style="font-size:9px">${SEG6_INFO[n].name}</div>
+      <div class="stat-val c${n}" style="font-size:22px">${counts[n]}</div>
+      <div class="stat-desc" style="font-size:9px">${SEG6_INFO[n].cond}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderP5Ctrl() {
+  return `<div class="p5-ctrl">
+    <label class="p5-label">사용자 정의 기준값 — 직원수 Y축 기준 (현재: <strong id="thrDisplay">${customThreshold.toLocaleString()}</strong>명)</label>
+    <div class="p5-row">
+      <input class="p5-inp" id="thrInput" type="number" value="${customThreshold}" min="100" max="50000" step="100" placeholder="기준값 입력...">
+      <div class="p5-presets">
+        <button class="preset-btn ${customThreshold===500?'on':''}" onclick="setPreset(500)">500명</button>
+        <button class="preset-btn ${customThreshold===1000?'on':''}" onclick="setPreset(1000)">1,000명</button>
+        <button class="preset-btn ${customThreshold===2000?'on':''}" onclick="setPreset(2000)">2,000명</button>
+        <button class="preset-btn ${customThreshold===3000?'on':''}" onclick="setPreset(3000)">3,000명</button>
+        <button class="preset-btn ${customThreshold===5000?'on':''}" onclick="setPreset(5000)">5,000명</button>
+      </div>
+    </div>
+    <div class="p5-result" id="thrResult">기준 ${customThreshold.toLocaleString()}명 이상: ${DB.filter(d=>d.emp&&d.emp>=customThreshold).length}개 기관 / 미만: ${DB.filter(d=>d.emp&&d.emp<customThreshold).length}개 기관</div>
+  </div>`;
+}
+
+function bindP5Events() {
+  const inp = document.getElementById('thrInput');
+  if (!inp) return;
+  inp.addEventListener('input', () => {
+    const v = parseInt(inp.value);
+    if (!isNaN(v) && v > 0) {
+      customThreshold = v;
+      selSeg = null;
+      renderPage();
+    }
+  });
+}
+
+function setPreset(v) {
+  customThreshold = v;
+  selSeg = null;
+  renderPage();
+}
+
+function renderPDCAHtml() {
+  return `<div class="pdca-list">${PDCA_DATA.map((p,i)=>`
+    <div class="pdca-item" id="pi${i}">
+      <div class="pdca-hdr" onclick="toggleP(${i})">
+        <div class="pdca-dot ${p.tag}">${p.tag}</div>
+        <div style="flex:1"><div class="pdca-title">${p.title}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px">${p.sub}</div></div>
+        <i class="ti ti-chevron-down" id="pc${i}" style="font-size:12px;color:var(--text3);transition:transform .2s" aria-hidden="true"></i>
+      </div>
+      <div class="pdca-body" id="pb${i}">${p.body}</div>
+    </div>`).join('')}</div>`;
+}
+
+function toggleP(i) {
+  const b=document.getElementById('pb'+i), c=document.getElementById('pc'+i);
+  const open=b.classList.toggle('open');
+  if(c) c.style.transform=open?'rotate(180deg)':'';
+}
+
+function getFiltered() {
+  const q=(document.getElementById('searchInp')||{value:''}).value.toLowerCase();
+  const sv=(document.getElementById('sortSel')||{value:''}).value||'';
+  let rows=[...DB];
+  if(selSector!=='all') rows=rows.filter(d=>d.cat1===selSector);
+  if(selSeg!==null) rows=rows.filter(d=>getCurSeg(d)===selSeg);
+  if(q) rows=rows.filter(d=>d.name.toLowerCase().includes(q)||d.cat1.includes(q)||d.cat2.includes(q));
+  if(sv) rows.sort((a,b)=>{
+    if(sv==='emp_desc') return (b.emp||0)-(a.emp||0);
+    if(sv==='emp_asc') return (a.emp||0)-(b.emp||0);
+    if(sv==='name_asc') return a.name.localeCompare(b.name,'ko');
+    if(sv==='name_desc') return b.name.localeCompare(a.name,'ko');
+    if(sv==='seg') return ((getCurSeg(a)||99)-(getCurSeg(b)||99));
+    if(sv==='cat1') return a.cat1.localeCompare(b.cat1,'ko');
+    if(sv==='rep_o') return (b.rep||'').localeCompare(a.rep||'');
+    return 0;
+  });
+  if(sortCol) {
+    const k=sortCol,dir=sortDir;
+    rows.sort((a,b)=>{
+      if(k==='emp') return ((b.emp||0)-(a.emp||0))*dir;
+      if(k==='seg') return ((getCurSeg(a)||99)-(getCurSeg(b)||99))*dir;
+      return String(a[k]||'').localeCompare(String(b[k]||''),'ko')*dir;
+    });
+  }
+  return rows;
+}
+
+function getSegBadge(n) {
+  if(!n) return '<span class="badge bna">미분류</span>';
+  const inf=curTab===3?SEG6_INFO[n]:SEG4_INFO(getThreshold())[n];
+  return `<span class="badge ${inf.bCls}">${inf.label}</span>`;
+}
+
+function renderTableHtml() {
+  const rows=getFiltered();
+  const segLabel = curTab===3?'영역':'사분면';
+  const tbody=rows.map((d,i)=>{
+    const seg=getCurSeg(d);
+    const rb=d.rep==='O'?'<span class="badge bok">O</span>':d.rep==='X'?'<span class="badge bno">X</span>':'<span class="badge bna">-</span>';
+    const sb=d.sol==='O'?'<span class="badge bok">O</span>':d.sol==='X'?'<span class="badge bno">X</span>':'<span class="badge bna">-</span>';
+    const note=(d.note||'').replace(/"/g,'&quot;');
+    return `<tr>
+      <td style="color:var(--text3);font-size:11px">${i+1}</td>
+      <td style="font-weight:500">${d.name}</td>
+      <td>${d.cat1}</td>
+      <td style="color:var(--text2)">${d.cat2}</td>
+      <td style="color:var(--text2)">${d.group||'-'}</td>
+      <td class="num">${d.emp?d.emp.toLocaleString()+'명':'-'}</td>
+      <td class="ctr">${rb}</td>
+      <td class="ctr">${sb}</td>
+      <td>${getSegBadge(seg)}</td>
+      <td><input class="note-inp" value="${note}" placeholder="메모..." data-id="${d.id}"></td>
+      <td style="text-align:center">
+        <button class="act-btn" onclick="openModal(${d.id})">편집</button>
+        <button class="act-btn del" onclick="delRecord(${d.id})">삭제</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const filterBarHtml = selSeg!==null ? `<div class="filter-bar show">
+    <i class="ti ti-filter" aria-hidden="true"></i>
+    <span><strong>${getSegInfo(selSeg)&&getSegInfo(selSeg).name}</strong> 필터 중 — ${getSegInfo(selSeg)&&getSegInfo(selSeg).cond}</span>
+    <button class="clear-btn" onclick="toggleSeg(null)">해제 ×</button>
+  </div>` : '<div class="filter-bar"></div>';
+
+  const sectors=['all','1금융권','2금융권','보험업권','금융지주','기타금융'];
+  const chips=sectors.map(s=>`<button class="fchip ${selSector===s?'on':''}" onclick="setSector('${s}')">${s==='all'?'전체':s}</button>`).join('');
+
+  return `<div class="table-section">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <i class="ti ti-search search-icon" aria-hidden="true"></i>
+        <input type="text" id="searchInp" placeholder="기관명 · 업종 검색..." oninput="refreshTable()">
+      </div>
+      <div class="filter-row">${chips}</div>
+      <select class="sort-sel" id="sortSel" onchange="refreshTable()">
+        <option value="">정렬 기준</option>
+        <option value="name_asc">기관명 ↑</option>
+        <option value="name_desc">기관명 ↓</option>
+        <option value="emp_desc">직원수 많은 순</option>
+        <option value="emp_asc">직원수 적은 순</option>
+        <option value="seg">${segLabel} 순</option>
+        <option value="cat1">업종 대분류</option>
+        <option value="rep_o">담당자 O 먼저</option>
+      </select>
+      <button class="add-btn" onclick="openModal(null)"><i class="ti ti-plus" aria-hidden="true"></i> 추가</button>
+    </div>
+    ${filterBarHtml}
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th style="width:32px">#</th>
+          <th onclick="colSort('name')" title="정렬">기관명<span id="sa-name"></span></th>
+          <th onclick="colSort('cat1')">업종 대분류<span id="sa-cat1"></span></th>
+          <th onclick="colSort('cat2')">업종 소분류<span id="sa-cat2"></span></th>
+          <th onclick="colSort('group')">소속 지주<span id="sa-group"></span></th>
+          <th onclick="colSort('emp')" style="text-align:right">임직원수<span id="sa-emp"></span></th>
+          <th onclick="colSort('rep')" style="text-align:center">담당자<span id="sa-rep"></span></th>
+          <th onclick="colSort('sol')" style="text-align:center">솔루션<span id="sa-sol"></span></th>
+          <th>${segLabel}</th>
+          <th style="min-width:120px">비고 / 기록</th>
+          <th style="text-align:center">관리</th>
+        </tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>
+    <div class="tfoot">
+      <span>${rows.length}개 표시 / 전체 ${DB.length}개</span>
+      <span>인라인 메모 편집 가능</span>
+    </div>
+  </div>`;
+}
+
+function bindTableEvents() {
+  document.querySelectorAll('.note-inp').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const id=parseInt(inp.dataset.id);
+      const d=DB.find(x=>x.id===id);
+      if(d) d.note=inp.value;
+    });
+  });
+}
+
+function colSort(key) {
+  if(sortCol===key) sortDir*=-1; else{sortCol=key;sortDir=1;}
+  refreshTable();
+}
+
+function setSector(s) {
+  selSector=s; refreshTable();
+}
+
+function toggleSeg(n) {
+  selSeg = (selSeg===n) ? null : n;
+  renderPage();
+}
+
+function clearAllFilters() {
+  selSeg=null; selSector='all'; sortCol=''; sortDir=1;
+  renderPage();
+}
+
+function refreshTable() {
+  const sect = document.querySelector('.table-section');
+  if(!sect) return;
+  sect.outerHTML = renderTableHtml();
+  bindTableEvents();
+}
+
+let editId=null;
+function openModal(id) {
+  editId=id;
+  document.getElementById('mTitle').textContent=id?'기관 정보 편집':'신규 금융기관 추가';
+  document.getElementById('recModal').classList.add('open');
+  if(id){
+    const d=DB.find(x=>x.id===id); if(!d)return;
+    document.getElementById('f-name').value=d.name||'';
+    document.getElementById('f-cat1').value=d.cat1||'1금융권';
+    document.getElementById('f-cat2').value=d.cat2||'';
+    document.getElementById('f-group').value=d.group||'';
+    document.getElementById('f-emp').value=d.emp||'';
+    document.getElementById('f-rep').value=d.rep||'';
+    document.getElementById('f-sol').value=d.sol||'';
+    document.getElementById('f-note').value=d.note||'';
+  } else {
+    ['f-name','f-cat2','f-group','f-emp','f-note'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('f-cat1').value='1금융권';
+    document.getElementById('f-rep').value='O';
+    document.getElementById('f-sol').value='O';
+  }
+}
+function closeModal(){document.getElementById('recModal').classList.remove('open');}
+function saveRecord(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('기관명을 입력해주세요.');return;}
+  const rec={
+    id:editId||++nextId,name,
+    cat1:document.getElementById('f-cat1').value,
+    cat2:document.getElementById('f-cat2').value.trim(),
+    group:document.getElementById('f-group').value.trim()||'-',
+    emp:parseInt(document.getElementById('f-emp').value)||null,
+    rep:document.getElementById('f-rep').value||null,
+    sol:document.getElementById('f-sol').value||null,
+    note:document.getElementById('f-note').value.trim(),
+  };
+  if(editId){const i=DB.findIndex(x=>x.id===editId);if(i>=0)DB[i]=rec;}
+  else DB.push(rec);
+  closeModal(); renderPage();
+}
+function delRecord(id){
+  if(!confirm('이 기관을 삭제하시겠습니까?'))return;
+  DB=DB.filter(x=>x.id!==id); renderPage();
+}
+document.getElementById('recModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+renderPage();
+</script>
